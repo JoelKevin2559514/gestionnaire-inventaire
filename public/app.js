@@ -1,5 +1,5 @@
 // ============================================================================
-// Gestionnaire d’inventaire — interface (vanilla JS, aucune dépendance)
+// Gestionnaire d'inventaire — interface (vanilla JS, aucune dépendance)
 // ============================================================================
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -14,9 +14,9 @@ const state = {
 const ROLE_LABEL = { admin: 'Admin', employe: 'Employé', lecture: 'Lecture seule' };
 const TYPE_LABEL = { entree: 'Entrée', vente: 'Vente', sortie: 'Sortie' };
 
-// Monnaie affichée dans toute l’application. Pour changer de monnaie,
+// Monnaie affichée dans toute l'application. Pour changer de monnaie,
 // modifiez seulement ces deux lignes (ex. SYMBOL = '€' et DECIMALS = 2,
-// ou SYMBOL = '$' et DECIMALS = 2). Le FCFA n’a pas de centimes : 0 décimale.
+// ou SYMBOL = '$' et DECIMALS = 2). Le FCFA n'a pas de centimes : 0 décimale.
 const CURRENCY_SYMBOL = 'FCFA';
 const CURRENCY_DECIMALS = 0;
 
@@ -138,7 +138,7 @@ $('#logout-btn').addEventListener('click', async () => {
 // ---------------------------------------------------------------------------
 $$('#tabs button').forEach((btn) => {
   btn.addEventListener('click', () => {
-    // Défense en profondeur : l’onglet Équipe & rôles est réservé à l’admin,
+    // Défense en profondeur : l'onglet Équipe & rôles est réservé à l'admin,
     // même si le bouton était atteint par un autre chemin.
     if (btn.dataset.tab === 'team' && (!state.user || state.user.role !== 'admin')) {
       toast('Seul l’administrateur peut gérer l’équipe et les rôles.');
@@ -334,7 +334,7 @@ function openArticleForm(id) {
           <input type="file" id="af-photo" accept="image/*" capture="environment">
         </label>
         <img id="af-preview" class="photo-preview" ${articleFormPhoto ? `src="${esc(articleFormPhoto)}"` : 'hidden'}>
-        <p class="muted">Une photo aide toute l’équipe à reconnaître l’article en un coup d’œil.</p>
+        <p class="muted">Une photo aide toute l'équipe à reconnaître l'article en un coup d'oeil.</p>
       </div>
       <div class="step-pane" data-pane="2" hidden>
         <label>Nom de l’article * <input type="text" id="af-name" required value="${a ? esc(a.name) : ''}" placeholder="ex. Casque Bluetooth X200"></label>
