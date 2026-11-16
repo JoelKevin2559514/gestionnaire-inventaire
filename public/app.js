@@ -334,7 +334,7 @@ function openArticleForm(id) {
           <input type="file" id="af-photo" accept="image/*" capture="environment">
         </label>
         <img id="af-preview" class="photo-preview" ${articleFormPhoto ? `src="${esc(articleFormPhoto)}"` : 'hidden'}>
-        <p class="muted">Une photo aide toute l'équipe à reconnaître l'article en un coup d'oeil.</p>
+        <p class="muted">Une photo aide toute l'équipe à reconnaître l'article en un coup d'œil.</p>
       </div>
       <div class="step-pane" data-pane="2" hidden>
         <label>Nom de l’article * <input type="text" id="af-name" required value="${a ? esc(a.name) : ''}" placeholder="ex. Casque Bluetooth X200"></label>
