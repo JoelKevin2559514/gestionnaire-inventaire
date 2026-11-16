@@ -24,7 +24,7 @@
       <p id="login-error" class="error" hidden></p>
       <button type="submit" class="btn primary big">Se connecter</button>
     </form>
-    <p class="hint">Première connexion : <b>admin</b> / <b>admin123</b> — changez le mot de passe ensuite.</p>
+    <p class="hint">Connectez-vous avec le compte que votre administrateur vous a créé.</p>
   </div>
 </div>
 
@@ -63,16 +63,26 @@
   <nav class="tabs" id="tabs">
     <button data-tab="dashboard" class="active">🏠 Tableau de bord</button>
     <button data-tab="articles">📦 Articles</button>
+    <button data-tab="history">🕑 Historique</button>
     <button data-tab="invoices">🧾 Factures</button>
-    <button data-tab="team" id="tab-team">👥 Équipe &amp; rôles</button>
+    <button data-tab="team" id="tab-team-btn">👥 Équipe &amp; rôles</button>
     <button data-tab="backup">💾 Sauvegarde</button>
   </nav>
 
   <main>
     <!-- ----- Tableau de bord ----- -->
     <section id="tab-dashboard" class="tab-page">
-      <h2 id="welcome-title">Bonjour 👋</h2>
-      <p class="muted">Voici l'état de votre inventaire aujourd'hui.</p>
+      <div class="hero">
+        <div class="hero-text">
+          <h2 id="welcome-title">Bonjour 👋</h2>
+          <p class="muted">Voici l'état de votre inventaire aujourd'hui.</p>
+        </div>
+        <div class="quick-actions">
+          <button type="button" class="btn primary" onclick="openArticleForm(null)">＋ Nouvel article</button>
+          <button type="button" class="btn" onclick="document.querySelector('[data-tab=history]').click()">🕑 Historique</button>
+          <button type="button" class="btn" onclick="document.querySelector('[data-tab=invoices]').click();document.getElementById('new-invoice-btn').click()">🧾 Nouvelle facture</button>
+        </div>
+      </div>
 
       <div id="alerts-box"></div>
 
@@ -124,9 +134,13 @@
       </div>
 
       <div id="articles-grid" class="articles-grid"></div>
+    </section>
 
+    <!-- ----- Historique ----- -->
+    <section id="tab-history" class="tab-page" hidden>
+      <h2>Historique des mouvements</h2>
+      <p class="muted">Toutes les entrées, ventes et sorties : qui a fait quoi, quand, à combien, et combien il reste.</p>
       <div class="card">
-        <h3>🕑 Historique des mouvements</h3>
         <div class="filters">
           <select id="hist-type">
             <option value="">Tous les types</option>

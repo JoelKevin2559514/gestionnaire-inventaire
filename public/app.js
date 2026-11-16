@@ -75,7 +75,7 @@ function enterApp(user) {
   if (user.mustChangePassword) { showView('password'); return; }
   showView('app');
   $('#user-chip').textContent = `${user.username} · ${ROLE_LABEL[user.role]}`;
-  $('#tab-team').style.display = user.role === 'admin' ? '' : 'none';
+  $('#tab-team-btn').style.display = user.role === 'admin' ? '' : 'none';
   $('#new-article-btn').style.display = user.role === 'admin' ? '' : 'none';
   $('#welcome-title').textContent = `Bonjour ${user.username} 👋`;
   loadDashboard();
@@ -133,7 +133,8 @@ $$('#tabs button').forEach((btn) => {
     $$('.tab-page').forEach((p) => { p.hidden = true; });
     $('#tab-' + btn.dataset.tab).hidden = false;
     if (btn.dataset.tab === 'dashboard') loadDashboard();
-    if (btn.dataset.tab === 'articles') { loadArticles(); loadHistory(); }
+    if (btn.dataset.tab === 'articles') loadArticles();
+    if (btn.dataset.tab === 'history') loadHistory();
     if (btn.dataset.tab === 'invoices') loadInvoices();
     if (btn.dataset.tab === 'team') loadUsers();
   });
