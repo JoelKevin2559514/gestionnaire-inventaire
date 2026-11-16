@@ -1,5 +1,5 @@
 // ============================================================================
-// Gestionnaire d'inventaire — interface (vanilla JS, aucune dépendance)
+// Gestionnaire d’inventaire — interface (vanilla JS, aucune dépendance)
 // ============================================================================
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
@@ -14,7 +14,16 @@ const state = {
 const ROLE_LABEL = { admin: 'Admin', employe: 'Employé', lecture: 'Lecture seule' };
 const TYPE_LABEL = { entree: 'Entrée', vente: 'Vente', sortie: 'Sortie' };
 
-function money(n) { return (Math.round((Number(n) || 0) * 100) / 100).toFixed(2) + ' $'; }
+// Monnaie affichée dans toute l’application. Pour changer de monnaie,
+// modifiez seulement ces deux lignes (ex. SYMBOL = '€' et DECIMALS = 2,
+// ou SYMBOL = '$' et DECIMALS = 2). Le FCFA n’a pas de centimes : 0 décimale.
+const CURRENCY_SYMBOL = 'FCFA';
+const CURRENCY_DECIMALS = 0;
+
+function money(n) {
+  const v = Math.round((Number(n) || 0) * 100) / 100;
+  return v.toLocaleString('fr-FR', { minimumFractionDigits: CURRENCY_DECIMALS, maximumFractionDigits: CURRENCY_DECIMALS }) + ' ' + CURRENCY_SYMBOL;
+}
 function esc(s) {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -77,6 +86,7 @@ function enterApp(user) {
   $('#user-chip').textContent = `${user.username} · ${ROLE_LABEL[user.role]}`;
   $('#tab-team-btn').style.display = user.role === 'admin' ? '' : 'none';
   $('#new-article-btn').style.display = user.role === 'admin' ? '' : 'none';
+  $('#qa-new-article').style.display = user.role === 'admin' ? '' : 'none';
   $('#welcome-title').textContent = `Bonjour ${user.username} 👋`;
   loadDashboard();
   loadArticles();
@@ -128,6 +138,12 @@ $('#logout-btn').addEventListener('click', async () => {
 // ---------------------------------------------------------------------------
 $$('#tabs button').forEach((btn) => {
   btn.addEventListener('click', () => {
+    // Défense en profondeur : l’onglet Équipe & rôles est réservé à l’admin,
+    // même si le bouton était atteint par un autre chemin.
+    if (btn.dataset.tab === 'team' && (!state.user || state.user.role !== 'admin')) {
+      toast('Seul l’administrateur peut gérer l’équipe et les rôles.');
+      return;
+    }
     $$('#tabs button').forEach((b) => b.classList.remove('active'));
     btn.classList.add('active');
     $$('.tab-page').forEach((p) => { p.hidden = true; });
@@ -300,6 +316,12 @@ let articleFormPhoto = '';
 let articleStep = 1;
 
 function openArticleForm(id) {
+  // Seul l'admin gère le catalogue (le serveur refuse aussi, mais on ne
+  // laisse même pas ouvrir le formulaire aux autres rôles).
+  if (!state.user || state.user.role !== 'admin') {
+    toast('Seul l’administrateur peut gérer le catalogue.');
+    return;
+  }
   const a = id ? state.articles.find((x) => x.id === id) : null;
   articleFormPhoto = a ? a.photo : '';
   articleStep = 1;
@@ -312,7 +334,7 @@ function openArticleForm(id) {
           <input type="file" id="af-photo" accept="image/*" capture="environment">
         </label>
         <img id="af-preview" class="photo-preview" ${articleFormPhoto ? `src="${esc(articleFormPhoto)}"` : 'hidden'}>
-        <p class="muted">Une photo aide toute l'équipe à reconnaître l'article en un coup d'œil.</p>
+        <p class="muted">Une photo aide toute l’équipe à reconnaître l’article en un coup d’œil.</p>
       </div>
       <div class="step-pane" data-pane="2" hidden>
         <label>Nom de l’article * <input type="text" id="af-name" required value="${a ? esc(a.name) : ''}" placeholder="ex. Casque Bluetooth X200"></label>
@@ -320,8 +342,8 @@ function openArticleForm(id) {
       </div>
       <div class="step-pane" data-pane="3" hidden>
         <div class="form-grid">
-          <label>Prix de vente ($) * <input type="number" id="af-price" required min="0" step="0.01" value="${a ? a.price : ''}" placeholder="19.99"></label>
-          <label>Prix coûtant ($) <input type="number" id="af-cost" min="0" step="0.01" value="${a && a.cost_price != null ? a.cost_price : ''}" placeholder="Facultatif"></label>
+          <label>Prix de vente (FCFA) * <input type="number" id="af-price" required min="0" step="0.01" value="${a ? a.price : ''}" placeholder="5000"></label>
+          <label>Prix coûtant (FCFA) <input type="number" id="af-cost" min="0" step="0.01" value="${a && a.cost_price != null ? a.cost_price : ''}" placeholder="Facultatif"></label>
           <label>SKU / Référence <input type="text" id="af-sku" value="${a ? esc(a.sku || '') : ''}" placeholder="ex. CB-001"></label>
           <label>Catégorie <input type="text" id="af-cat" value="${a ? esc(a.category || '') : ''}" placeholder="ex. Audio"></label>
           <label>Stock de départ <input type="number" id="af-stock" min="0" step="1" value="${a ? a.stock : 0}"></label>
@@ -428,7 +450,7 @@ function openMoveModal(articleId, type, presetQty = 1) {
         <button type="button" class="btn small" onclick="document.getElementById('mv-qty').value=Math.max(1,(document.getElementById('mv-qty').value||1)-1)">−1</button>
         <button type="button" class="btn small" onclick="document.getElementById('mv-qty').value=(+document.getElementById('mv-qty').value||0)+1">＋1</button>
       </div>
-      <label>Prix unitaire ($)
+      <label>Prix unitaire (FCFA)
         <input type="number" id="mv-price" min="0" step="0.01" value="${isSale ? a.price : (a.cost_price ?? a.price)}">
       </label>
       <label>Note <input type="text" id="mv-note" placeholder="Facultatif — ex. client régulier, casse…"></label>
@@ -588,6 +610,10 @@ async function loadUsers() {
 
 $('#user-form').addEventListener('submit', async (e) => {
   e.preventDefault();
+  if (!state.user || state.user.role !== 'admin') {
+    toast('Seul l’administrateur peut créer des utilisateurs.');
+    return;
+  }
   try {
     await api('/api/users', {
       method: 'POST',
