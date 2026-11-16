@@ -1,0 +1,5 @@
+# Données locales et secrets — ne jamais envoyer sur GitHub
+node_modules/
+data.sqlite
+*.sqlite
+.env

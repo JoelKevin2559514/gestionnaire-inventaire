@@ -1,0 +1,14 @@
+# Déploiement en un clic sur Render (offre gratuite)
+services:
+  - type: web
+    name: gestionnaire-inventaire
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Fuseau horaire utilisé pour les ventes du jour / du mois
+      - key: TZ
+        value: America/Toronto

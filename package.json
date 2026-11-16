@@ -1,0 +1,1 @@
+{"dependencies":{"bcryptjs":"^2.4.3","express":"^4.21.2"},"description":"SaaS de gestion d'inventaire multi-utilisateurs — Node.js, Express, SQLite intégré","engines":{"node":">=22"},"main":"server.js","name":"gestionnaire-inventaire","scripts":{"start":"node server.js"},"version":"1.0.0"}
