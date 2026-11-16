@@ -5,6 +5,7 @@
 // ============================================================================
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const { DatabaseSync } = require('node:sqlite');
@@ -572,9 +573,31 @@ app.post('/api/backup/import', auth, requireRole('admin'), (req, res) => {
 
 // ---------------------------------------------------------------------------
 // Interface web (fichiers statiques)
+// Le dossier public/ peut se trouver à plusieurs endroits selon la façon dont
+// les fichiers ont été téléversés sur l'hébergeur (racine du projet, dossier
+// parent, etc.) : on cherche le premier emplacement qui contient index.html.
 // ---------------------------------------------------------------------------
-app.use(express.static(path.join(__dirname, 'public')));
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+const PUBLIC_CANDIDATES = [
+  path.join(__dirname, 'public'),
+  path.join(__dirname, '..', 'public'),
+  path.join(process.cwd(), 'public'),
+  path.join(__dirname, 'gestionnaire-inventaire-code', 'public'),
+  path.join(process.cwd(), 'gestionnaire-inventaire-code', 'public'),
+];
+const PUBLIC_DIR = PUBLIC_CANDIDATES.find((d) => fs.existsSync(path.join(d, 'index.html')));
+if (PUBLIC_DIR) {
+  console.log(`Interface trouvée : ${PUBLIC_DIR}`);
+  app.use(express.static(PUBLIC_DIR));
+  app.get('/', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')));
+} else {
+  console.log('ATTENTION : dossier public/ introuvable. Emplacements essayés : ' + PUBLIC_CANDIDATES.join(' | '));
+  console.log('Vérifiez que le dossier public (avec index.html) a bien été téléversé sur l’hébergeur.');
+  app.get('/', (req, res) => res.status(500).type('html').send(
+    '<h1>Interface introuvable</h1><p>Le dossier <code>public/</code> (avec <code>index.html</code>) ' +
+    'n’a pas été trouvé sur le serveur. Vérifiez que le dossier <code>public</code> a bien été téléversé ' +
+    'avec le reste du projet, puis redéployez.</p>'
+  ));
+}
 
 app.listen(PORT, HOST, () => {
   console.log(`Gestionnaire d'inventaire en ligne sur http://${HOST}:${PORT}`);
