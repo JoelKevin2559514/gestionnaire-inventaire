@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gestionnaire d'inventaire</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ==================== ÉCRAN DE CONNEXION ==================== -->
+<div id="login-view" class="login-wrap">
+  <div class="login-card">
+    <div class="logo">📦</div>
+    <h1>Gestionnaire d'inventaire</h1>
+    <p class="subtitle">Vos articles, vos ventes et votre stock — partout, en équipe.</p>
+    <form id="login-form">
+      <label>Identifiant
+        <input type="text" id="login-username" autocomplete="username" placeholder="ex. admin" required>
+      </label>
+      <label>Mot de passe
+        <input type="password" id="login-password" autocomplete="current-password" placeholder="••••••••" required>
+      </label>
+      <p id="login-error" class="error" hidden></p>
+      <button type="submit" class="btn primary big">Se connecter</button>
+    </form>
+    <p class="hint">Première connexion : <b>admin</b> / <b>admin123</b> — changez le mot de passe ensuite.</p>
+  </div>
+</div>
+
+<!-- Changement de mot de passe obligatoire (première connexion) -->
+<div id="password-view" class="login-wrap" hidden>
+  <div class="login-card">
+    <div class="logo">🔑</div>
+    <h1>Changez votre mot de passe</h1>
+    <p class="subtitle">C'est votre première connexion : choisissez un mot de passe personnel.</p>
+    <form id="password-form">
+      <label>Mot de passe actuel
+        <input type="password" id="pw-current" autocomplete="current-password" required>
+      </label>
+      <label>Nouveau mot de passe (6 caractères min.)
+        <input type="password" id="pw-new" autocomplete="new-password" required minlength="6">
+      </label>
+      <label>Confirmer le nouveau mot de passe
+        <input type="password" id="pw-confirm" autocomplete="new-password" required minlength="6">
+      </label>
+      <p id="pw-error" class="error" hidden></p>
+      <button type="submit" class="btn primary big">Enregistrer</button>
+    </form>
+  </div>
+</div>
+
+<!-- ==================== APPLICATION ==================== -->
+<div id="app-view" hidden>
+  <header class="topbar">
+    <div class="brand">📦 <span>Inventaire</span></div>
+    <div class="userbox">
+      <span id="user-chip" class="chip"></span>
+      <button id="logout-btn" class="btn small">Déconnexion</button>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="dashboard" class="active">🏠 Tableau de bord</button>
+    <button data-tab="articles">📦 Articles</button>
+    <button data-tab="invoices">🧾 Factures</button>
+    <button data-tab="team" id="tab-team">👥 Équipe &amp; rôles</button>
+    <button data-tab="backup">💾 Sauvegarde</button>
+  </nav>
+
+  <main>
+    <!-- ----- Tableau de bord ----- -->
+    <section id="tab-dashboard" class="tab-page">
+      <h2 id="welcome-title">Bonjour 👋</h2>
+      <p class="muted">Voici l'état de votre inventaire aujourd'hui.</p>
+
+      <div id="alerts-box"></div>
+
+      <div class="kpis">
+        <div class="kpi"><span class="kpi-label">Ventes du jour</span><span class="kpi-value" id="kpi-today">—</span></div>
+        <div class="kpi"><span class="kpi-label">Ventes du mois</span><span class="kpi-value" id="kpi-month">—</span></div>
+        <div class="kpi"><span class="kpi-label">Valeur du stock</span><span class="kpi-value" id="kpi-stock">—</span></div>
+        <div class="kpi"><span class="kpi-label">Articles</span><span class="kpi-value" id="kpi-count">—</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>📊 Ventes</h3>
+          <div class="seg">
+            <button id="chart-daily" class="active">Journalier (30 j)</button>
+            <button id="chart-monthly">Mensuel (12 mois)</button>
+          </div>
+        </div>
+        <canvas id="chart" height="180"></canvas>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <h3>🏆 Articles les plus vendus</h3>
+          <ul id="top-sellers" class="list"></ul>
+        </div>
+        <div class="card">
+          <h3>🕑 Derniers mouvements</h3>
+          <ul id="recent-movements" class="list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ----- Articles ----- -->
+    <section id="tab-articles" class="tab-page" hidden>
+      <div class="page-head">
+        <div>
+          <h2>Articles</h2>
+          <p class="muted">Ajoutez un article en 3 étapes : photo, nom et description, puis prix et stock.</p>
+        </div>
+        <button id="new-article-btn" class="btn primary">＋ Nouvel article</button>
+      </div>
+
+      <div class="search-row">
+        <input type="search" id="article-search" placeholder="🔍 Rechercher un article…">
+        <select id="article-filter">
+          <option value="">Toutes les catégories</option>
+        </select>
+      </div>
+
+      <div id="articles-grid" class="articles-grid"></div>
+
+      <div class="card">
+        <h3>🕑 Historique des mouvements</h3>
+        <div class="filters">
+          <select id="hist-type">
+            <option value="">Tous les types</option>
+            <option value="entree">Entrées</option>
+            <option value="vente">Ventes</option>
+            <option value="sortie">Sorties</option>
+          </select>
+          <input type="date" id="hist-from" title="Du">
+          <input type="date" id="hist-to" title="Au">
+          <button id="hist-apply" class="btn small">Filtrer</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Article</th><th>Type</th><th>Qté</th><th>Prix unit.</th><th>Total</th><th>Par</th><th>Note</th></tr></thead>
+            <tbody id="history-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ----- Factures ----- -->
+    <section id="tab-invoices" class="tab-page" hidden>
+      <div class="page-head">
+        <div>
+          <h2>Factures</h2>
+          <p class="muted">La facture est <b>facultative</b> : vous pouvez vendre sans en créer. Créez-en une ici quand un client en demande une.</p>
+        </div>
+        <button id="new-invoice-btn" class="btn primary">＋ Nouvelle facture</button>
+      </div>
+      <div id="invoices-list"></div>
+    </section>
+
+    <!-- ----- Équipe & rôles ----- -->
+    <section id="tab-team" class="tab-page" hidden>
+      <h2>Équipe &amp; rôles</h2>
+      <p class="muted">Seul l'administrateur gère les comptes.</p>
+      <div class="card">
+        <h3>👤 Ajouter un utilisateur</h3>
+        <form id="user-form" class="form-grid">
+          <label>Identifiant <input type="text" id="user-name" required placeholder="ex. marie"></label>
+          <label>Mot de passe <input type="password" id="user-pass" required minlength="6" placeholder="6 caractères min."></label>
+          <label>Rôle
+            <select id="user-role">
+              <option value="employe">Employé — vend, facture, gère le stock</option>
+              <option value="admin">Admin — tout, y compris catalogue et utilisateurs</option>
+              <option value="lecture">Lecture seule — consulte seulement</option>
+            </select>
+          </label>
+          <button type="submit" class="btn primary">Créer l'utilisateur</button>
+        </form>
+      </div>
+      <div class="card">
+        <h3>👥 Membres de l'équipe</h3>
+        <ul id="users-list" class="list"></ul>
+      </div>
+      <div class="card">
+        <h3>🔐 Rôles expliqués</h3>
+        <ul class="list">
+          <li><b>Admin</b> : gère le catalogue, les prix, les photos et les utilisateurs.</li>
+          <li><b>Employé</b> : enregistre les ventes et les entrées/sorties, crée des factures.</li>
+          <li><b>Lecture seule</b> : consulte le tableau de bord et les articles, ne modifie rien.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ----- Sauvegarde ----- -->
+    <section id="tab-backup" class="tab-page" hidden>
+      <h2>Sauvegarde</h2>
+      <p class="muted">Sur un hébergeur gratuit, les données peuvent être effacées si le service dort trop longtemps.
+      Exportez régulièrement une copie de vos données et gardez-la précieusement.</p>
+      <div class="card">
+        <h3>💾 Exporter mes données</h3>
+        <p>Télécharge un fichier JSON avec tous vos articles, mouvements, factures et utilisateurs.</p>
+        <button id="export-btn" class="btn primary">⬇️ Exporter en JSON</button>
+      </div>
+      <div class="card">
+        <h3>📥 Restaurer une sauvegarde</h3>
+        <p>Choisissez un fichier JSON exporté précédemment. <b>Attention :</b> les données actuelles seront remplacées.</p>
+        <input type="file" id="import-file" accept="application/json">
+        <button id="import-btn" class="btn">Restaurer cette sauvegarde</button>
+        <p id="import-msg" class="muted"></p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ==================== FENÊTRES (modales) ==================== -->
+<div id="modal-backdrop" class="modal-backdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true">
+    <button class="modal-close" id="modal-close">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
