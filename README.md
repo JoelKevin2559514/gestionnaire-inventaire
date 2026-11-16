@@ -92,7 +92,7 @@ Les données sont enregistrées dans le fichier `data.sqlite`, créé automatiqu
 ## 🛠️ Dépannage
 
 **Erreur dans les logs : `ENOENT: no such file or directory, stat '.../public/index.html'`**
-→ Le dossier `public/` n'a pas été téléversé avec le reste du projet (par exemple si seuls les fichiers à la racine ont été envoyés). Vérifiez que le dossier `public` — avec `index.html`, `app.js` et `style.css` dedans — est bien présent sur Render, puis relancez un déploiement. Au démarrage, le log doit afficher `Interface trouvée : .../public` : si vous voyez `ATTENTION : dossier public/ introuvable`, c'est que le dossier manque encore.
+→ Le dossier `public/` n'a pas été téléversé avec le reste du projet (par exemple si seuls les fichiers à la racine ont été envoyés). Vérifiez que le dossier `public` — avec `index.html`, `app.js` et `style.css` dedans — est bien présent sur Render, puis relancez un déploiement. Au démarrage, le log doit afficher `Interface trouvée : .../public` : si vous voyez `ATTENTION : dossier public/ introuvable`, c'est que le dossier manque encore. Depuis la version corrigée, le serveur contient aussi une copie de secours de l'interface intégrée dans `server.js` : même sans le dossier `public/`, l'application démarre et le log indique `Interface intégrée utilisée`.
 
 **La page reste blanche ou affiche « Interface introuvable »**
 → Même cause que ci-dessus : le dossier `public/` est absent. Re-téléversez le projet complet (tous les fichiers **et** le dossier `public`).

@@ -13,6 +13,11 @@
   --radius: 14px;
 }
 * { box-sizing: border-box; }
+/* L'attribut hidden doit toujours cacher l'élément, même quand une classe
+   définit un display (ex. .modal-backdrop en display:flex) : sans cette
+   règle, le fond sombre de la fenêtre modale reste affiché par-dessus
+   toute la page et bloque tous les clics. */
+[hidden] { display: none !important; }
 body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
 h1 { font-size: 1.5rem; margin: 0 0 8px; }
 h2 { font-size: 1.3rem; margin: 0 0 4px; }
