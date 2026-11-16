@@ -2,6 +2,7 @@
 // Gestionnaire d'inventaire — serveur autonome
 // Node.js + Express + SQLite intégré (node:sqlite, aucune compilation native)
 // Démarrage : node server.js  (port via la variable PORT, écoute 0.0.0.0)
+//Version1.3
 // ============================================================================
 const express = require('express');
 const path = require('path');
