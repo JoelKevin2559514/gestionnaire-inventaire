@@ -160,7 +160,15 @@ function esc(s) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-const money = (n) => (Math.round((Number(n) || 0) * 100) / 100).toFixed(2) + ' $';
+// Monnaie affichée sur les factures (même réglage que dans public/app.js :
+// changez ces deux lignes pour changer de monnaie partout).
+const CURRENCY_SYMBOL = 'FCFA';
+const CURRENCY_DECIMALS = 0;
+
+const money = (n) => {
+    const v = Math.round((Number(n) || 0) * 100) / 100;
+    return v.toLocaleString('fr-FR', { minimumFractionDigits: CURRENCY_DECIMALS, maximumFractionDigits: CURRENCY_DECIMALS }) + ' ' + CURRENCY_SYMBOL;
+};
 
 function parseCookies(req) {
   const out = {};
